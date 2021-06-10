@@ -1,15 +1,8 @@
-#
-# Build stage
-#
-FROM maven:3.8.1-0penjdk:11-jdk AS build
-COPY src /home/app/src
-COPY pom.xml /home/app
-RUN mvn -f /home/app/pom.xml clean package
-
-#
-# Package stage
-#
-FROM openjdk:11-jre-slim
-COPY --from=build /home/app/target/demo-0.0.1-SNAPSHOT.jar /usr/local/lib/demo.jar
-EXPOSE 8080
-ENTRYPOINT ["java","-jar","/usr/local/lib/demo.jar"]
+FROM openjdk:8-alpine
+# Required for starting application up.
+RUN apk update && apk add /bin/sh
+RUN mkdir -p /opt/app
+ENV PROJECT_HOME /opt/app
+COPY target/maven-web-application.jar $PROJECT_HOME/maven-web-application.jar
+WORKDIR $PROJECT_HOME
+CMD ["java" ,"-jar","./maven-web-application.jar"]
